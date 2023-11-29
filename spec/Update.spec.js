@@ -1,74 +1,58 @@
-import {
-  QueryExpression,
-  SqlFormatter,
-  QueryEntity,
-  avg,
-} from "@themost/query";
 import Table from "easy-table";
-import { TestDatabase, TestUtils } from "../db.js";
+import { TestApplication } from "../TestApplication.js";
 
-describe("SQL", () => {
+describe("Request", () => {
   /**
-   * @type {TestDatabase}
+   * @type {TestApplication}
    */
-  let db;
-  beforeAll(() => {
-    db = new TestDatabase();
+  let app;
+  beforeAll(async () => {
+    app = new TestApplication();
+    await app.start();
   });
-
   afterAll(async () => {
-    await db.closeAsync();
+    // close
+    if (app.server) {
+      await app.stop();
+    }
   });
 
   it("should use update", async () => {
-    const Products = new QueryEntity("ProductData");
-    const q = new QueryExpression()
+    const context = await app.createContext();
+    const q = context
+      .model("Products")
       .select(({ id, name, model, price }) => ({
         id,
         name,
         price,
         model,
       }))
-      .from(Products)
       .where((x) => {
         return x.name === "Lenovo Yoga 2 Pro";
       });
-    console.log(new SqlFormatter().format(q));
-    const data = await db.executeAsync(q);
+    console.log(q.toString());
+    const data = await q.getItems();
     console.log(Table.print(data));
 
     const product = data[0];
+    const newPrice = product.price * 0.75;
+    product.price = newPrice;
+    await context.model("Products").save(product);
 
-    // IMPORTANT NOTE
-    // Product model follows table inheritance architecture and is being represented by 2 different records.
-    // The first record exists at ThingBase(id, name, description, dateCreated, dateModified, ...) table
-    // and the other one at ProductBase(id, model, price, ...) table where ThingBase.id = ProductBase.id
-    // Read more about structured database models at MOST Framework ORM module
-    // https://github.com/themost-framework/data
-    // and don't forget to checkout the sample sqlite database for more information
-    // https://github.com/themost-framework/test/tree/master/modules/test/server/db
-
-    const Product = new QueryEntity("ProductBase");
-    await TestUtils.executeInTestTransaction(db, async () => {
-      // delete record at ProductBase table
-      let q1 = new QueryExpression()
-        .update(Product)
-        .set({
-          price: product.price * 0.75,
-        })
-        .where(
-          (x, value) => {
-            return x.id === value;
-          },
-          {
-            value: product.id,
-          },
-        );
-      console.log(new SqlFormatter().format(q1));
-      await db.executeAsync(q1);
-
-      const data = await db.executeAsync(q);
-      console.log(Table.print(data));
-    });
+    const q2 = context
+      .model("Products")
+      .select(({ id, name, model, price }) => ({
+        id,
+        name,
+        price,
+        model,
+      }))
+      .where((x) => {
+        return x.name === "Lenovo Yoga 2 Pro";
+      });
+    console.log(q2.toString());
+    const item = await q2.getItem();
+    expect(item.price).toEqual(newPrice);
+    console.log(Table.print(item));
   });
 });

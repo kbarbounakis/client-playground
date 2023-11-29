@@ -1,36 +1,40 @@
-import { QueryExpression, SqlFormatter, QueryEntity } from "@themost/query";
-import Table from 'easy-table';
-import { TestDatabase } from '../db.js';
+import Table from "easy-table";
+import { TestApplication } from "../TestApplication.js";
 
-describe('SQL', () => {
-
-  /** 
-  * @type {TestDatabase}
-  */
-  let db;
-  beforeAll(() => {
-    db = new TestDatabase();
+describe("Request", () => {
+  /**
+   * @type {TestApplication}
+   */
+  let app;
+  beforeAll(async () => {
+    app = new TestApplication();
+    await app.start();
+  });
+  afterAll(async () => {
+    // close
+    if (app.server) {
+      await app.stop();
+    }
   });
 
-  afterAll(async () => {
-    await db.closeAsync();
-  })
-
-  it('should use select', async () => {
-    const Products = new QueryEntity('ProductData');
-    const q = new QueryExpression().select(({ id, name, category, model, price }) => ({
-      id,
-      name,
-      category,
-      model,
-      price
-    })).from(Products)
+  it("should use select", async () => {
+    const context = await app.createContext();
+    const q = context
+      .model("Products")
+      .select(({ id, name, category, model, price }) => ({
+        id,
+        name,
+        category,
+        model,
+        price,
+      }))
       .where((x) => {
         return x.price > 500;
-      }).take(10);
+      })
+      .take(10);
 
-    console.log(new SqlFormatter().format(q));
-    const data = await db.executeAsync(q);
+    console.log(q.toString());
+    const data = await q.getItems();
     console.log(Table.print(data));
   });
-})
+});

@@ -1,39 +1,35 @@
-import {
-  QueryExpression,
-  SqlFormatter,
-  QueryEntity,
-  sum,
-} from "@themost/query";
 import Table from "easy-table";
-import { TestDatabase } from "../db.js";
-import path from "path";
+import { TestApplication } from "../TestApplication.js";
 
-describe("SQL", () => {
+describe("Request", () => {
   /**
-   * @type {TestDatabase}
+   * @type {TestApplication}
    */
-  let db;
-  beforeAll(() => {
-    db = new TestDatabase();
+  let app;
+  beforeAll(async () => {
+    app = new TestApplication();
+    await app.start();
   });
-
   afterAll(async () => {
-    await db.closeAsync();
+    // close
+    if (app.server) {
+      await app.stop();
+    }
   });
 
   it("should use startsWith", async () => {
-    const People = new QueryEntity("PersonData");
-    const q = new QueryExpression()
+    const context = await app.createContext();
+    const q = context
+      .model("People")
       .select((x) => {
         x.id, x.familyName, x.givenName, x.email, x.dateCreated;
       })
-      .from(People)
       .where((x) => {
         return x.familyName.startsWith("Cam") === true;
       });
 
-    console.log(new SqlFormatter().format(q));
-    const data = await db.executeAsync(q);
+    console.log(q.toString());
+    const data = await q.getItems();
     console.log(Table.print(data));
   });
 });
