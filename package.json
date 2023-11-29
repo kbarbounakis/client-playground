@@ -15,12 +15,15 @@
     "@themost/node": "2.5.0",
     "@themost/query": "^2.11.1",
     "@themost/sqlite": "^2.6.16",
-    "@themost/test": "^2.3.2",
+    "@themost/test": "^2.3.3",
     "@types/node": "^18.0.6",
     "debug": "^4.3.4",
     "easy-table": "^1.2.0",
     "jasmine": "^5.1.0",
     "node-fetch": "^3.2.6",
     "promisify": "^0.0.3"
+  },
+  "devDependencies": {
+    "source-map-support": "^0.5.21"
   }
 }

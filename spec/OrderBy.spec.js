@@ -1,39 +1,37 @@
+import Table from "easy-table";
+import { TestApplication } from "../TestApplication.js";
 
-import { QueryExpression, SqlFormatter, QueryEntity } from "@themost/query";
-import Table from 'easy-table';
-import { TestDatabase } from '../db.js';
-
-describe('SQL', () => {
-
-  /** 
-  * @type {TestDatabase}
-  */
-  let db;
-  beforeAll(() => {
-    db = new TestDatabase();
+describe("Request", () => {
+  /**
+   * @type {TestApplication}
+   */
+  let app;
+  beforeAll(async () => {
+    app = new TestApplication();
+    await app.start();
+  });
+  afterAll(async () => {
+    // close
+    if (app.server) {
+      await app.stop();
+    }
   });
 
-  afterAll(async () => {
-    await db.closeAsync();
-  })
-
-  it('should use order by', async () => {
-    const Orders = new QueryEntity('OrderData');
-    const Customers = new QueryEntity('PersonData').as('customer');
-    const q = new QueryExpression().select((x) => {
-      return {
-        id: x.id,
-        orderDate: x.orderDate,
-        customer: x.customer.description
-      }
-    }).from(Orders)
-      .join(Customers).with((x, y) => {
-        return x.customer === y.id;
+  it("should use order by", async () => {
+    const context = await app.createContext();
+    const q = context
+      .model("Orders")
+      .select((x) => {
+        return {
+          id: x.id,
+          orderDate: x.orderDate,
+          customer: x.customer.description,
+        };
       })
-      .orderBy((x) => x.orderDate).take(10);
-
-    console.log(new SqlFormatter().format(q));
-    const data = await db.executeAsync(q);
+      .orderBy((x) => x.orderDate)
+      .take(10);
+    console.log(q.toString());
+    const data = await q.getItems();
     console.log(Table.print(data));
   });
 });

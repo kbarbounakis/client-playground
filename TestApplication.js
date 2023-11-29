@@ -25,7 +25,7 @@ class TestApplication {
     // create api server
     const app = getApplication();
     // serve
-    this.server = await serveApplication(app);
+    this.server = await serveApplication(app, 8000);
     // get server_uri for further processing
     this.server_uri = getServerAddress(this.server);
     return this;
@@ -60,7 +60,6 @@ class TestApplication {
     });
     // set bearer authorization
     context.setBearerAuthorization(access_token);
-    context.service.setHeader("accept", "application/json");
     return context;
   }
 }
