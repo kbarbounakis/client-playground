@@ -4,7 +4,9 @@ A collection of examples which represents the usage of javascript closures while
 
 This project uses jasmine unit testing for representing a collection of [@themost/client](https://github.com/themost-framework/client) examples. Execute `npm test spec/<test>.spec.js` to run a specific test or `npm test` to run all tests.
 
-Note: The examples included in this project use test api server provided at https://github.com/themost-framework/test
+Important Note: The examples included in this project use test api server provided at https://github.com/themost-framework/test
+
+Before running tests, you must install dependencies by executing `npm install` and start test api server by executing `npm start` command.
 
 Don't forget to checkout client for other javascript environments like:
 
