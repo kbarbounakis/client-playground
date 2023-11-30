@@ -6,18 +6,11 @@ describe("Request", () => {
    * @type {TestApplication}
    */
   let app;
-  /**
-   * @type {import('@themost/client').ClientDataContext}
-   */
   beforeAll(async () => {
     app = new TestApplication();
-    await app.start();
   });
   afterAll(async () => {
-    // close
-    if (app.server) {
-      await app.stop();
-    }
+    //
   });
 
   it("should use and", async () => {

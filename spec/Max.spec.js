@@ -8,13 +8,9 @@ describe("Request", () => {
   let app;
   beforeAll(async () => {
     app = new TestApplication();
-    await app.start();
   });
   afterAll(async () => {
-    // close
-    if (app.server) {
-      await app.stop();
-    }
+    //
   });
 
   it('should use max', async () => {

@@ -17,7 +17,7 @@ class TestApplication {
    * @type {string}
    * @returns {Promise<TestApplication>}
    */
-  server_uri;
+  server_uri = 'http://localhost:4000';
   async start() {
     if (this.server != null) {
       return this;
@@ -25,7 +25,7 @@ class TestApplication {
     // create api server
     const app = getApplication();
     // serve
-    this.server = await serveApplication(app, 8000);
+    this.server = await serveApplication(app, 4000);
     // get server_uri for further processing
     this.server_uri = getServerAddress(this.server);
     return this;
